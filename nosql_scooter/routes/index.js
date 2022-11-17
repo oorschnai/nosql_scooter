@@ -32,6 +32,8 @@ router.get('/enterLogin', (req, res) => {
     if (user_type == 'user'){
       res.redirect('/main')
     } else {
+      var alert = require('alert');
+      alert('Incorrect login or password');
       res.redirect('/')
     }
   }
