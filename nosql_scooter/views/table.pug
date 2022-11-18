@@ -8,23 +8,19 @@ html(lang='en')
     body
         header
             .container
-                a.back-main(href='/main') Back
+                a.back-main(href='/main' class="gg-arrow-left")
                 a.exit-account(href='/') Exit
 
         - var i = 0;
-        p=clients.length
-        table.clients-table.w3-table-all
+        table.w3-table-all
             tr
-                th ID
-                th login
-                th password
+                for key in keys
+                    th #{key}
 
-            while i < clients.length
+            while i < data.length
                 tr
-                    td #{clients[i].id}
-                    td #{clients[i].login}
-                    td #{clients[i].password}
+                    for val in Object.values(data[i])
+                        td #{val}
                 - i++
-
 
         footer

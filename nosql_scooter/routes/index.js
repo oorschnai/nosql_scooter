@@ -3,6 +3,11 @@ var router = express.Router();
 
 let logins = require('../public/users');
 let users = require('../public/users');
+let scooters = require('../public/scooters');
+let warehouses = require('../public/warehouses');
+let trips = require('../public/trips');
+let unloading_area = require('../public/unloading_area');
+
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -57,9 +62,31 @@ router.get('/aggregated', (req, res) => {
 });
 
 router.get('/clients', (req, res) => {
-  console.log(users)
-  res.render('clients', {title: 'Базы данных',clients: users});
-  //отделить клиентов от админов?
+  //console.log(users)
+  let keys = Object.keys(users[0])
+  console.log(keys)
+  res.render('table', {title: 'Пользователи', keys: keys, data: users});
+  //отделить клиентов от админов? Нужно ли выводить пароли?
+});
+
+router.get('/scooters', (req, res) => {
+  let keys = Object.keys(scooters[0])
+  res.render('table', {title: 'Самокаты', keys: keys, data: scooters});
+});
+
+router.get('/warehouses', (req, res) => {
+  let keys = Object.keys(warehouses[0])
+  res.render('table', {title: 'Склады', keys: keys, data: warehouses});
+});
+
+router.get('/unloading_area', (req, res) => {
+  let keys = Object.keys(unloading_area[0])
+  res.render('table', {title: 'Площадки выгрузки', keys: keys, data: unloading_area});
+});
+
+router.get('/trips', (req, res) => {
+  let keys = Object.keys(trips[0])
+  res.render('table', {title: 'Площадки выгрузки', keys: keys, data: trips});
 });
 
 module.exports = router;

@@ -1,0 +1,16 @@
+[
+  {
+    "number": "1234",
+    "battery": "80",
+    "coordinate_x": "25",
+    "coordinate_y": "25",
+    "status": "Свободен"
+  },
+  {
+    "number": "1235",
+    "battery": "87",
+    "coordinate_x": "55",
+    "coordinate_y": "26",
+    "status": "Занят"
+  }
+]

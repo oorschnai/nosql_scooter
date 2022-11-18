@@ -176,3 +176,33 @@ select:focus{
     font-size: 20px;
 }
 
+.gg-arrow-left {
+    box-sizing: border-box;
+    position: relative;
+    display: block;
+    transform: scale(var(--ggs,1));
+    width: 22px;
+    height: 22px
+}
+.gg-arrow-left::after,
+.gg-arrow-left::before {
+    content: "";
+    display: block;
+    box-sizing: border-box;
+    position: absolute;
+    left: 3px
+}
+.gg-arrow-left::after {
+    width: 20px;
+    height: 20px;
+    border-bottom: 2px solid;
+    border-left: 2px solid;
+    transform: rotate(45deg);
+    bottom: -10px
+}
+.gg-arrow-left::before {
+    width: 40px;
+    height: 2px;
+    bottom: -1px;
+    background: currentColor
+}

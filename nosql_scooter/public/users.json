@@ -1,18 +1,21 @@
 [
   {
-    "id": "0",
+    "name": "Пользователь Пользователевич",
+    "phone": "89111111111",
     "login": "user",
     "password": "user",
     "type": "user"
   },
   {
-    "id": "1",
+    "name": "Админ Админович",
+    "phone": "89111111112",
     "login": "admin",
     "password": "admin",
     "type": "admin"
   },
   {
-    "id": "2",
+    "name": "Админ1 Админович1",
+    "phone": "89111111113",
     "login": "admin1",
     "password": "admin1",
     "type": "admin"
