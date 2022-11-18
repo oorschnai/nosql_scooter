@@ -1,16 +1,16 @@
 [
   {
-    "number": "1234",
-    "battery": "80",
-    "coordinate_x": "25",
-    "coordinate_y": "25",
-    "status": "Свободен"
+    "id": "0",
+    "battery": "100",
+    "coordinate_x": "59.985444887334296",
+    "coordinate_y": "30.30097846294469",
+    "status": "free"
   },
   {
-    "number": "1235",
-    "battery": "87",
-    "coordinate_x": "55",
-    "coordinate_y": "26",
-    "status": "Занят"
+    "id": "1",
+    "battery": "90",
+    "coordinate_x": "59.986048497632694",
+    "coordinate_y": "30.302213055877125",
+    "status": "free"
   }
 ]
