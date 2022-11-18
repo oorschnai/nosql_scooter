@@ -1,7 +1,8 @@
 var express = require('express');
 var router = express.Router();
 
-let logins = require('../public/logins.json');
+let logins = require('../public/users');
+let users = require('../public/users');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -10,6 +11,18 @@ router.get('/', function(req, res, next) {
 
 router.get('/main', (req, res) => {
   res.render('main_page', {title: "Main"})
+});
+
+router.get('/tariffs', (req, res) => {
+  res.render('tariffs', {title: 'Tarrifs'})
+});
+
+router.get('/rules', (req, res) => {
+  res.render('rules', {title: 'Rules'})
+});
+
+router.get('/dbs', (req, res) => {
+  res.render('dbs', {title: 'Data Bases'})
 });
 
 router.get('/enterLogin', (req, res) => {
@@ -38,5 +51,15 @@ router.get('/enterLogin', (req, res) => {
     }
   }
 })
+
+router.get('/aggregated', (req, res) => {
+  console.log(req.query);
+});
+
+router.get('/clients', (req, res) => {
+  console.log(users)
+  res.render('clients', {title: 'Базы данных',clients: users});
+  //отделить клиентов от админов?
+});
 
 module.exports = router;

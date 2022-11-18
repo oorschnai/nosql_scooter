@@ -1,0 +1,30 @@
+doctype html
+html(lang='en')
+    head
+        meta(charset='UTF-8')
+        title=title
+        link(href='style.css' rel='stylesheet' type='text/css')
+        link(rel='stylesheet', href='/stylesheets/w3.css')
+    body
+        header
+            .container
+                a.back-main(href='/main') Back
+                a.exit-account(href='/') Exit
+
+        - var i = 0;
+        p=clients.length
+        table.clients-table.w3-table-all
+            tr
+                th ID
+                th login
+                th password
+
+            while i < clients.length
+                tr
+                    td #{clients[i].id}
+                    td #{clients[i].login}
+                    td #{clients[i].password}
+                - i++
+
+
+        footer
