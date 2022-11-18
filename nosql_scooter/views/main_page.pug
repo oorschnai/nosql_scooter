@@ -8,7 +8,7 @@ html(lang='en')
         header
             .container
                 nav
-                    a.exit-account(href='') Exit
+                    a.exit-account(href='/') Exit
                     input#hmt.hidden-menu-ticker(type='checkbox')
                     label.btn-menu(for='hmt')
                         span.first
@@ -31,6 +31,7 @@ html(lang='en')
                             a(href='') Профиль
                         li
                             a.about
-        .map
-            h1 Здарова заебал
+        #ya-map.map
+        script(src='https://api-maps.yandex.ru/2.1/?apikey=ваш API-ключ&lang=ru_RU')
+        script(src='map.js')
         footer
