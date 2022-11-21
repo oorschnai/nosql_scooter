@@ -11,11 +11,21 @@ let unloading_area = require('../public/unloading_area');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('login_page', { title: 'Login' });
+  let cookies = req.cookies;
+  if (!cookies.type) {
+    res.render('login_page', {title: 'Login'});
+  } else {
+    res.redirect('/main')
+  }
 });
 
 router.get('/main', (req, res) => {
-  res.render('main_page', {title: "Main"})
+  let type = req.cookies.type;
+  if (type) {
+    res.render('main_page', {title: "Main", type: type});
+  } else {
+    res.redirect('/');
+  }
 });
 
 router.get('/tariffs', (req, res) => {
@@ -27,66 +37,118 @@ router.get('/rules', (req, res) => {
 });
 
 router.get('/dbs', (req, res) => {
-  res.render('dbs', {title: 'Data Bases'})
+  let type = req.cookies.type;
+  if (type === 'admin') {
+    res.render('dbs', {title: 'Data Bases'})
+  } else if (type === 'user') {
+    res.redirect('/main');
+  } else {
+    res.redirect('/')
+  }
 });
 
 router.get('/enterLogin', (req, res) => {
   let user_type = 'no'
+  let user_id = ''
   //типа запрос к бд
   let login = req.query.login;
   let password = req.query.password;
-  //console.log("login = ", login, "\tpassword = ", password)
   for (let i in logins){
-    if (logins[i].login == login && logins[i].password == password){
+    if (logins[i].login === login && logins[i].password === password){
       user_type = logins[i].type;
+      user_id = logins[i].phone;
       break;
     }
   }
   //конец запроса
-  console.log("type = ", user_type)
-  if (user_type == 'admin'){
+
+  res.cookie("type", user_type);
+  res.cookie("user id", user_id);
+  if (user_type === 'admin' || user_type === 'user'){
     res.redirect('/main')
   } else {
-    if (user_type == 'user'){
-      res.redirect('/main')
-    } else {
-      var alert = require('alert');
-      alert('Incorrect login or password');
-      res.redirect('/')
-    }
+    var alert = require('alert');
+    alert('Incorrect login or password');
+    res.redirect('/')
   }
 })
 
 router.get('/aggregated', (req, res) => {
-  console.log(req.query);
+  let type = req.cookies.type;
+  if (type === 'admin') {
+    console.log(req.query);
+  } else if (type === 'user') {
+    res.redirect('/main')
+  } else {
+    res.redirect('/')
+  }
 });
 
 router.get('/clients', (req, res) => {
-  //console.log(users)
   let keys = Object.keys(users[0])
-  console.log(keys)
-  res.render('table', {title: 'Пользователи', keys: keys, data: users});
+  let type = req.cookies.type;
+  if (type === 'admin') {
+    res.render('table', {title: 'Пользователи', keys: keys, data: users});
+  } else if (type === 'user') {
+    res.redirect('/main')
+  } else {
+    res.redirect('/')
+  }
   //отделить клиентов от админов? Нужно ли выводить пароли?
 });
 
 router.get('/scooters', (req, res) => {
   let keys = Object.keys(scooters[0])
-  res.render('table', {title: 'Самокаты', keys: keys, data: scooters});
+  let type = req.cookies.type;
+  if (type === 'admin') {
+    res.render('table', {title: 'Самокаты', keys: keys, data: scooters});
+  } else if (type === 'user') {
+    res.redirect('/main')
+  } else {
+    res.redirect('/')
+  }
 });
 
 router.get('/warehouses', (req, res) => {
   let keys = Object.keys(warehouses[0])
-  res.render('table', {title: 'Склады', keys: keys, data: warehouses});
+  let type = req.cookies.type;
+  if (type === 'admin') {
+    res.render('table', {title: 'Склады', keys: keys, data: warehouses});
+  } else if (type === 'user') {
+    res.redirect('/main')
+  } else {
+    res.redirect('/')
+  }
 });
 
 router.get('/unloading_area', (req, res) => {
   let keys = Object.keys(unloading_area[0])
-  res.render('table', {title: 'Площадки выгрузки', keys: keys, data: unloading_area});
+  let type = req.cookies.type;
+  if (type === 'admin') {
+    res.render('table', {title: 'Площадки выгрузки', keys: keys, data: unloading_area});
+  } else if (type === 'user') {
+    res.redirect('/main')
+  } else {
+    res.redirect('/')
+  }
 });
 
 router.get('/trips', (req, res) => {
   let keys = Object.keys(trips[0])
-  res.render('table', {title: 'Площадки выгрузки', keys: keys, data: trips});
+  let type = req.cookies.type;
+  if (type === 'admin') {
+    res.render('table', {title: 'Площадки выгрузки', keys: keys, data: trips});
+  } else if (type === 'user') {
+    res.redirect('/main')
+  } else {
+    res.redirect('/')
+  }
+});
+
+router.get('/exit', (req, res) => {
+  res.clearCookie('type');
+  res.clearCookie('user id');
+  res.redirect('/')
 });
 
 module.exports = router;
