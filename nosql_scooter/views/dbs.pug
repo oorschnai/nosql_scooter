@@ -4,6 +4,9 @@ html(lang='en')
         meta(charset='UTF-8')
         title Базы данных
         link(href='style.css' rel='stylesheet' type='text/css')
+        link(rel='stylesheet', href='/stylesheets/w3.css')
+        link(rel='stylesheet', href='/stylesheets/multiselect.css')
+        script(src='javascripts/multiselect.js')
     body
         header
             .container
@@ -36,5 +39,36 @@ html(lang='en')
                     button.agg-select-button Подтвердить
 
             div.db-right
-
+                form
+                    .multiselect
+                        .selectBox(onclick='showCheckboxes()')
+                            select
+                                option Scooter(-s)
+                            .overSelect
+                        #checkboxes
+                            label(for='one')
+                                input#one(type='checkbox')
+                                | id 940583408
+                            label(for='two')
+                                input#two(type='checkbox')
+                                | id 3905484590
+                            label(for='three')
+                                input#three(type='checkbox')
+                                | id 54905480
+                    .multiselect
+                        .selectBox(onclick='showCheckboxes1()')
+                            select
+                                option User(-s)
+                            .overSelect
+                        #checkboxes1
+                            label(for='one')
+                                input#one1(type='checkbox')
+                                | user
+                            label(for='two')
+                                input#two1(type='checkbox')
+                                | admin
+                            label(for='three')
+                                input#three1(type='checkbox')
+                                | admin1
+                    button.db-button-right.w3-button Подтвердить
         footer

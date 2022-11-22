@@ -7,6 +7,7 @@ let scooters = require('../public/scooters');
 let warehouses = require('../public/warehouses');
 let trips = require('../public/trips');
 let unloading_area = require('../public/unloading_area');
+let aggregated = require('../public/aggregated')
 
 
 /* GET home page. */
@@ -76,7 +77,18 @@ router.get('/enterLogin', (req, res) => {
 router.get('/aggregated', (req, res) => {
   let type = req.cookies.type;
   if (type === 'admin') {
-    console.log(req.query);
+    console.log("var = ", req.query.variant);
+    let variant = req.query.variant;
+    if (variant === '0'){
+      let keys = Object.keys(aggregated[0][0])
+      res.render('table', {title: 'Пользователи, которые больше всего ломают самокаты', keys: keys, data: aggregated[0]})
+    } else if (variant === '1') {
+      let keys = Object.keys(aggregated[1][0])
+      res.render('table', {title: 'Пользователи, у которых давно не было поздок', keys: keys, data: aggregated[1]})
+    } else {
+      let keys = Object.keys(aggregated[2][0])
+      res.render('table', {title: 'Самые далекие от складов самокаты', keys: keys, data: aggregated[2]})
+    }
   } else if (type === 'user') {
     res.redirect('/main')
   } else {
