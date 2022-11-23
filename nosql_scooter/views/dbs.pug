@@ -39,36 +39,51 @@ html(lang='en')
                     button.agg-select-button Подтвердить
 
             div.db-right
-                form
+                form(action='/free-choice', method='get').multiform
                     .multiselect
-                        .selectBox(onclick='showCheckboxes()')
+                        .selectBox(onclick='showCheckboxes(0)')
                             select
                                 option Scooter(-s)
                             .overSelect
-                        #checkboxes
-                            label(for='one')
-                                input#one(type='checkbox')
-                                | id 940583408
-                            label(for='two')
-                                input#two(type='checkbox')
-                                | id 3905484590
-                            label(for='three')
-                                input#three(type='checkbox')
-                                | id 54905480
+                        .checkboxes#checkboxes0
+                            for i in scooters
+                                label
+                                    input(type='checkbox' name = "scooters" value = i.id )
+                                    | id #{i.id}
+
                     .multiselect
-                        .selectBox(onclick='showCheckboxes1()')
+                        .selectBox(onclick='showCheckboxes(1)')
                             select
                                 option User(-s)
                             .overSelect
-                        #checkboxes1
-                            label(for='one')
-                                input#one1(type='checkbox')
-                                | user
-                            label(for='two')
-                                input#two1(type='checkbox')
-                                | admin
-                            label(for='three')
-                                input#three1(type='checkbox')
-                                | admin1
+                        .checkboxes#checkboxes1
+                            for i in users
+                                label
+                                    input(type='checkbox' name = "user" value = i.login)
+                                    | #{i.login}  (#{i.name})
+
+                    .multiselect
+                        .selectBox(onclick='showCheckboxes(2)')
+                            select
+                                option Warehouse(-s)
+                            .overSelect
+                        .checkboxes#checkboxes2
+                            for i in warehouses
+                                label
+                                    input(type='checkbox' name = "warehouses" value = i.id)
+                                    | id #{i.id}
+
+                    .multiselect
+                        .selectBox(onclick='showCheckboxes(3)')
+                            select
+                                option Unloading area
+                            .overSelect
+                        .checkboxes#checkboxes3
+                            for i in unloading_area
+                                label
+                                    input(type='checkbox' name = "unloading_area" value = i.id)
+                                    | #{i.id}  (#{i.address})
+
+
                     button.db-button-right.w3-button Подтвердить
         footer

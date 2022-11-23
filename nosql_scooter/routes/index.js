@@ -40,7 +40,7 @@ router.get('/rules', (req, res) => {
 router.get('/dbs', (req, res) => {
   let type = req.cookies.type;
   if (type === 'admin') {
-    res.render('dbs', {title: 'Data Bases'})
+    res.render('dbs', {title: 'Data Bases', users: users, scooters: scooters, warehouses: warehouses, unloading_area: unloading_area})
   } else if (type === 'user') {
     res.redirect('/main');
   } else {
@@ -161,6 +161,11 @@ router.get('/exit', (req, res) => {
   res.clearCookie('type');
   res.clearCookie('user id');
   res.redirect('/')
+});
+
+router.get('/free-choice', (req, res) => {
+  console.log("query:\n", req.query)
+  res.redirect('/dbs')
 });
 
 module.exports = router;
