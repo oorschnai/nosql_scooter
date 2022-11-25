@@ -38,4 +38,45 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
+var uri = "neo4j://localhost:7687"
+var user = "neo4j"
+var password = "0000"
+
+
+const neo4j = require('neo4j-driver')
+console.log("debug", "heeeeey")
+const driver = neo4j.driver(uri, neo4j.auth.basic(user, password))
+try{
+  session = driver.session()
+  session.writeTransaction(tx => {
+    let streamResult = tx.run("match (a:MASHA) create (hello:world)-[:hey]->(masha:roma) return a")
+    streamResult.subscribe({
+      onNext: function (record) {
+        // On receipt of RECORD
+        for (var i in record) {
+          console.log(i)
+          console.log(record[i])
+        }
+      },
+      onCompleted: function () {
+        var summary = streamResult.summarize()
+        // Print number of nodes created
+        console.log('')
+        console.log(summary.updateStatistics.nodesCreated())
+      },
+      onError: function (error) {
+        console.log(error)
+      }
+    })
+
+  })
+} catch (a){}
+const personName = 'Alice'
+
+
+
+// on application exit:
+ //driver.close()
+
 module.exports = app;
+
