@@ -104,7 +104,7 @@ router.get('/dbs', async (req, res) => {
   let scooters = await getScooters()
   let warehouses = await getWarehouses()
   let unloading_areas = await getUnloadingAreas()
-  console.log(warehouses, unloading_areas)
+  console.log(warehouses)
   let type = req.cookies.type;
   if (type === 'admin') {
     res.render('dbs', {title: 'Data Bases', users: users, scooters: scooters, warehouses: warehouses, unloading_area: unloading_areas})
@@ -228,7 +228,7 @@ router.get('/trips', async (req, res) => {
   let keys = Object.keys(trips[0])
   let type = req.cookies.type;
   if (type === 'admin') {
-    res.render('table', {title: 'Площадки выгрузки', keys: keys, data: trips});
+    res.render('table', {title: 'Поездки', keys: keys, data: trips});
   } else if (type === 'user') {
     res.redirect('/main')
   } else {
@@ -245,33 +245,155 @@ router.get('/exit', (req, res) => {
 async function attachedToScooters(scooter){
   let attachedToScooters = []
   let result = await session.run(
-      'Match(t:SCOOTER{number: $number}) Match p=(n:TECH_CARD)-[:TALKS_ABOUT]-(t) with n, collect(nodes(p)) as listOflistOfnodes unwind listOflistOfnodes as list unwind list as element return collect(distinct element) as distinctNodes;',
+      'match (sc:SCOOTER{number: $number})-[net]-(node) \n' +
+      'return sc,net,node',
       {number: scooter}
   )
+  for (let i in result.records){
+    let scooter = result.records[i].get(0).properties
 
-  attachedToScooters.push(result.records[0].get(0)[0].properties)
-  attachedToScooters.push(result.records[0].get(0)[1].properties)
+    let relationship = result.records[i].get(1).type //HAS_NOW/TALKS_ABOUT/USED
+
+    let attachedTo = result.records[i].get(2)
+
+    let dict = {'scooter': scooter, 'relationship': relationship, 'attachedTo': attachedTo}
+    attachedToScooters.push(dict)
+  }
+
   return attachedToScooters
 }
 
-async function attachedToUser(user){
+async function attachedToUsers(user){
+  let attachedToUsers = []
+  let result = await session.run(
+      'match (us:USER{login: $login})-[net]-(node) \n' +
+      'return us,net,node',
+      {login: user}
+  )
+  for (let i in result.records){
+    let user = result.records[i].get(0).properties
 
+    let relationship = result.records[i].get(1).type //HAS_NOW/TALKS_ABOUT/USED
+
+    let attachedTo = result.records[i].get(2)
+
+    let dict = {'user': user, 'relationship': relationship, 'attachedTo': attachedTo}
+    attachedToUsers.push(dict)
+  }
+
+  return attachedToUsers
+}
+
+async function attachedToWarehouses(warehouse){
+  let attachedToWarehouses = []
+  let result = await session.run(
+      'match (wr:WAREHOUSE{number: $number})-[net]-(node) \n' +
+      'return wr,net,node',
+      {number: warehouse}
+  )
+  for (let i in result.records){
+    let warehouse = result.records[i].get(0).properties
+
+    let relationship = result.records[i].get(1).type //HAS_NOW/TALKS_ABOUT/USED
+
+    let attachedTo = result.records[i].get(2)
+
+    let dict = {'warehouse': warehouse, 'relationship': relationship, 'attachedTo': attachedTo}
+    attachedToWarehouses.push(dict)
+  }
+
+  return attachedToWarehouses
+}
+
+async function attachedToUnloadingAreas(unloading_area){
+  let attachedToUnloadingAreas = []
+  let result = await session.run(
+      'match (ua:UNLOADING_AREA{number: $number})-[net]-(node) \n' +
+      'return ua,net,node',
+      {number: unloading_area}
+  )
+  for (let i in result.records){
+    let warehouse = result.records[i].get(0).properties
+
+    let relationship = result.records[i].get(1).type //HAS_NOW/TALKS_ABOUT/USED
+
+    let attachedTo = result.records[i].get(2)
+
+    let dict = {'unloading_area': unloading_area, 'relationship': relationship, 'attachedTo': attachedTo}
+    attachedToWarehouses.push(dict)
+  }
+
+  return attachedToUnloadingAreas
 }
 
 router.get('/free-choice', async (req, res) => {
-  console.log("query:\n", req.query)
+  let relationships = []
+
   if (req.query.scooters)
-    for (let i in req.query.scooters){
-      let scooters = await attachedToScooters(req.query.scooters[i])
-      console.log(scooters)
+  {
+    if (typeof(req.query.scooters) == 'string')
+    {
+      relationships = Object.assign(relationships,await attachedToScooters(req.query.scooters))
     }
+    else
+    {
+      for (let i in req.query.scooters)
+      {
+        relationships = Object.assign(relationships, await attachedToScooters(req.query.scooters[i]))
+      }
+    }
+    console.log(relationships)
+    //Поправить!!!
+  }
+
   if (req.query.users)
-    console.log(req.query.users)
+  {
+    if (typeof(req.query.users) == 'string')
+    {
+      relationships = Object.assign(relationships,await attachedToUsers(req.query.users))
+    }
+    else
+    {
+      for (let i in req.query.users)
+      {
+        relationships = Object.assign(relationships, await attachedToUsers(req.query.users[i]))
+      }
+    }
+  }
+
   if (req.query.warehouses)
-    console.log(req.query.warehouses[0].number)
+  {
+    if (typeof(req.query.warehouses) == 'string')
+    {
+      relationships = Object.assign(relationships,await attachedToWarehouses(req.query.warehouses))
+    }
+    else
+    {
+      for (let i in req.query.warehouses)
+      {
+        relationships = Object.assign(relationships, await attachedToWarehouses(req.query.warehouses[i]))
+      }
+    }
+  }
+
   if (req.query.unloading_areas)
-    console.log(req.query.unloading_areas[0].number)
-  res.redirect('/dbs')
+  {
+    if (typeof(req.query.unloading_areas) == 'string')
+    {
+      relationships = Object.assign(relationships,await attachedToUnloadingAreas(req.query.unloading_areas))
+    }
+    else
+    {
+      for (let i in req.query.unloading_areas)
+      {
+        relationships = Object.assign(relationships, await attachedToUnloadingAreas(req.query.unloading_areas[i]))
+      }
+    }
+  }
+  let keys = 0
+  if (relationships[0])
+    keys = Object.keys(relationships[0])
+  res.render('table', {title: 'Фильтры', keys: keys, data: relationships})
 });
 
 module.exports = router;

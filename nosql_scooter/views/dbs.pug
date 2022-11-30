@@ -70,8 +70,8 @@ html(lang='en')
                         .checkboxes#checkboxes2
                             for i in warehouses
                                 label
-                                    input(type='checkbox' name = "warehouses" value = i.houseNumber)
-                                    | id #{i.houseNumber}
+                                    input(type='checkbox' name = "warehouses" value = i.number)
+                                    | id #{i.number}
 
                     .multiselect
                         .selectBox(onclick='showCheckboxes(3)')
