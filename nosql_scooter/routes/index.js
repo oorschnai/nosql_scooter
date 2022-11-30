@@ -1,14 +1,81 @@
 var express = require('express');
 var router = express.Router();
 
-let logins = require('../public/users');
-let users = require('../public/users');
-let scooters = require('../public/scooters');
-let warehouses = require('../public/warehouses');
-let trips = require('../public/trips');
-let unloading_area = require('../public/unloading_area');
 let aggregated = require('../public/aggregated')
 
+let neo4j = require('neo4j-driver')
+var uri = "neo4j://localhost:7687"
+var user = "neo4j"
+var password = "0000"
+const driver = neo4j.driver(uri, neo4j.auth.basic(user, password))
+session = driver.session()
+
+async function getBd(){
+  let result = await session.run(
+      'MATCH (a) RETURN a'
+  )
+  console.log(result)
+}
+
+async function getClients(){
+  let users = []
+  let result = await session.run(
+      'MATCH (a:USER) RETURN a'
+  )
+  for (let i in result.records){
+    console.log(result.records[i].get(0).properties)
+    users.push(result.records[i].get(0).properties)
+  }
+  return users
+}
+
+async function getScooters(){
+  let scooters = []
+  let result = await session.run(
+      'MATCH (a:SCOOTER) RETURN a'
+  )
+  for (let i in result.records){
+    console.log(result.records[i].get(0).properties)
+    scooters.push(result.records[i].get(0).properties)
+  }
+  return scooters
+}
+
+async function getWarehouses(){
+  let warehouses = []
+  let result = await session.run(
+      'MATCH (a:WAREHOUSE) RETURN a'
+  )
+  for (let i in result.records){
+    console.log(result.records[i].get(0).properties)
+    warehouses.push(result.records[i].get(0).properties)
+  }
+  return warehouses
+}
+
+async function getTrips(){
+  let trips = []
+  let result = await session.run(
+      'MATCH (a:TRIP) RETURN a'
+  )
+  for (let i in result.records){
+    console.log(result.records[i].get(0).properties)
+    trips.push(result.records[i].get(0).properties)
+  }
+  return trips
+}
+
+async function getUnloadingAreas(){
+  let unloading_areas = []
+  let result = await session.run(
+      'MATCH (a:UNLOADING_AREA) RETURN a'
+  )
+  for (let i in result.records){
+    console.log(result.records[i].get(0).properties)
+    unloading_areas.push(result.records[i].get(0).properties)
+  }
+  return unloading_areas
+}
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -38,9 +105,13 @@ router.get('/rules', (req, res) => {
 });
 
 router.get('/dbs', (req, res) => {
+  let users = getClients()
+  let scooters = getScooters()
+  let warehouses = getWarehouses()
+  let unloading_areas = getUnloadingAreas()
   let type = req.cookies.type;
   if (type === 'admin') {
-    res.render('dbs', {title: 'Data Bases', users: users, scooters: scooters, warehouses: warehouses, unloading_area: unloading_area})
+    res.render('dbs', {title: 'Data Bases', users: users, scooters: scooters, warehouses: warehouses, unloading_area: unloading_areas})
   } else if (type === 'user') {
     res.redirect('/main');
   } else {
@@ -51,6 +122,7 @@ router.get('/dbs', (req, res) => {
 router.get('/enterLogin', (req, res) => {
   let user_type = 'no'
   let user_id = ''
+  let logins = getClients()
   //типа запрос к бд
   let login = req.query.login;
   let password = req.query.password;
@@ -96,8 +168,11 @@ router.get('/aggregated', (req, res) => {
   }
 });
 
-router.get('/clients', (req, res) => {
+router.get('/clients', async (req, res) => {
+  let users = await getClients()
+  //getBd()
   let keys = Object.keys(users[0])
+  console.log(keys)
   let type = req.cookies.type;
   if (type === 'admin') {
     res.render('table', {title: 'Пользователи', keys: keys, data: users});
@@ -109,8 +184,11 @@ router.get('/clients', (req, res) => {
   //отделить клиентов от админов? Нужно ли выводить пароли?
 });
 
-router.get('/scooters', (req, res) => {
+router.get('/scooters', async (req, res) => {
+  let scooters = await getScooters()
+  console.log(scooters)
   let keys = Object.keys(scooters[0])
+  console.log(keys)
   let type = req.cookies.type;
   if (type === 'admin') {
     res.render('table', {title: 'Самокаты', keys: keys, data: scooters});
@@ -121,7 +199,8 @@ router.get('/scooters', (req, res) => {
   }
 });
 
-router.get('/warehouses', (req, res) => {
+router.get('/warehouses', async (req, res) => {
+  let warehouses = await getWarehouses()
   let keys = Object.keys(warehouses[0])
   let type = req.cookies.type;
   if (type === 'admin') {
@@ -133,11 +212,12 @@ router.get('/warehouses', (req, res) => {
   }
 });
 
-router.get('/unloading_area', (req, res) => {
-  let keys = Object.keys(unloading_area[0])
+router.get('/unloading_area', async (req, res) => {
+  let unloading_areas = await getUnloadingAreas()
+  let keys = Object.keys(unloading_areas[0])
   let type = req.cookies.type;
   if (type === 'admin') {
-    res.render('table', {title: 'Площадки выгрузки', keys: keys, data: unloading_area});
+    res.render('table', {title: 'Площадки выгрузки', keys: keys, data: unloading_areas});
   } else if (type === 'user') {
     res.redirect('/main')
   } else {
@@ -145,7 +225,8 @@ router.get('/unloading_area', (req, res) => {
   }
 });
 
-router.get('/trips', (req, res) => {
+router.get('/trips', async (req, res) => {
+  let trips = await getTrips()
   let keys = Object.keys(trips[0])
   let type = req.cookies.type;
   if (type === 'admin') {
