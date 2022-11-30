@@ -256,7 +256,7 @@ async function attachedToScooters(scooter){
 
     let attachedTo = result.records[i].get(2)
 
-    let dict = {'scooter': scooter, 'relationship': relationship, 'attachedTo': attachedTo}
+    let dict = {'scooter': scooter.number + '(scooter)', 'relationship': relationship, 'attachedTo': attachedTo}
     attachedToScooters.push(dict)
   }
 
@@ -271,13 +271,13 @@ async function attachedToUsers(user){
       {login: user}
   )
   for (let i in result.records){
-    let user = result.records[i].get(0).properties
+    let user = result.records[i].get(0).properties.login
 
     let relationship = result.records[i].get(1).type //HAS_NOW/TALKS_ABOUT/USED
 
     let attachedTo = result.records[i].get(2)
 
-    let dict = {'user': user, 'relationship': relationship, 'attachedTo': attachedTo}
+    let dict = {'user': user + '(user)', 'relationship': relationship, 'attachedTo': attachedTo}
     attachedToUsers.push(dict)
   }
 
@@ -292,13 +292,13 @@ async function attachedToWarehouses(warehouse){
       {number: warehouse}
   )
   for (let i in result.records){
-    let warehouse = result.records[i].get(0).properties
+    let warehouse = result.records[i].get(0).properties.number
 
     let relationship = result.records[i].get(1).type //HAS_NOW/TALKS_ABOUT/USED
 
     let attachedTo = result.records[i].get(2)
 
-    let dict = {'warehouse': warehouse, 'relationship': relationship, 'attachedTo': attachedTo}
+    let dict = {'warehouse': warehouse + '(warehouse)', 'relationship': relationship, 'attachedTo': attachedTo}
     attachedToWarehouses.push(dict)
   }
 
@@ -313,13 +313,13 @@ async function attachedToUnloadingAreas(unloading_area){
       {number: unloading_area}
   )
   for (let i in result.records){
-    let warehouse = result.records[i].get(0).properties
+    let warehouse = result.records[i].get(0).properties.number
 
     let relationship = result.records[i].get(1).type //HAS_NOW/TALKS_ABOUT/USED
 
     let attachedTo = result.records[i].get(2)
 
-    let dict = {'unloading_area': unloading_area, 'relationship': relationship, 'attachedTo': attachedTo}
+    let dict = {'unloading_area': unloading_area + '(unloading area)', 'relationship': relationship, 'attachedTo': attachedTo}
     attachedToWarehouses.push(dict)
   }
 
@@ -333,16 +333,15 @@ router.get('/free-choice', async (req, res) => {
   {
     if (typeof(req.query.scooters) == 'string')
     {
-      relationships = Object.assign(relationships,await attachedToScooters(req.query.scooters))
+      relationships.push(await attachedToScooters(req.query.scooters))
     }
     else
     {
       for (let i in req.query.scooters)
       {
-        relationships = Object.assign(relationships, await attachedToScooters(req.query.scooters[i]))
+        relationships.push(await attachedToScooters(req.query.scooters[i]))
       }
     }
-    console.log(relationships)
     //Поправить!!!
   }
 
@@ -350,13 +349,13 @@ router.get('/free-choice', async (req, res) => {
   {
     if (typeof(req.query.users) == 'string')
     {
-      relationships = Object.assign(relationships,await attachedToUsers(req.query.users))
+      relationships.push(await attachedToUsers(req.query.users))
     }
     else
     {
       for (let i in req.query.users)
       {
-        relationships = Object.assign(relationships, await attachedToUsers(req.query.users[i]))
+        relationships.push(await attachedToUsers(req.query.users[i]))
       }
     }
   }
@@ -365,13 +364,13 @@ router.get('/free-choice', async (req, res) => {
   {
     if (typeof(req.query.warehouses) == 'string')
     {
-      relationships = Object.assign(relationships,await attachedToWarehouses(req.query.warehouses))
+      relationships.push(await attachedToWarehouses(req.query.warehouses))
     }
     else
     {
       for (let i in req.query.warehouses)
       {
-        relationships = Object.assign(relationships, await attachedToWarehouses(req.query.warehouses[i]))
+        relationships.push(await attachedToWarehouses(req.query.warehouses[i]))
       }
     }
   }
@@ -380,20 +379,19 @@ router.get('/free-choice', async (req, res) => {
   {
     if (typeof(req.query.unloading_areas) == 'string')
     {
-      relationships = Object.assign(relationships,await attachedToUnloadingAreas(req.query.unloading_areas))
+      relationships.push(await attachedToUnloadingAreas(req.query.unloading_areas))
     }
     else
     {
       for (let i in req.query.unloading_areas)
       {
-        relationships = Object.assign(relationships, await attachedToUnloadingAreas(req.query.unloading_areas[i]))
+        relationships.push(await attachedToUnloadingAreas(req.query.unloading_areas[i]))
       }
     }
   }
   let keys = 0
-  if (relationships[0])
-    keys = Object.keys(relationships[0])
-  res.render('table', {title: 'Фильтры', keys: keys, data: relationships})
+  keys = ['node1', 'relationship','node2']
+  res.render('filter_table', {title: 'Фильтры', keys: keys, data: relationships})
 });
 
 module.exports = router;

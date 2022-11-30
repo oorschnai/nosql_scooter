@@ -23,10 +23,14 @@ html(lang='en')
                     th(onclick="sortTable(" + index + ")") #{keys[index]}
                     - index++
 
+            - console.log("len = ", data.length)
             while j < data.length
-                while i < j.length
+                - console.log("j = ", j)
+                - i = 0
+                while i < data[j].length
+                    - console.log(i)
                     tr
-                        for val in Object.values(data[i])
+                        for val in Object.values(data[j][i])
                             td #{val}
                     - i++
                 - j++
