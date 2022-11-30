@@ -23,7 +23,6 @@ async function getClients(){
       'MATCH (a:USER) RETURN a'
   )
   for (let i in result.records){
-    console.log(result.records[i].get(0).properties)
     users.push(result.records[i].get(0).properties)
   }
   return users
@@ -35,7 +34,6 @@ async function getScooters(){
       'MATCH (a:SCOOTER) RETURN a'
   )
   for (let i in result.records){
-    console.log(result.records[i].get(0).properties)
     scooters.push(result.records[i].get(0).properties)
   }
   return scooters
@@ -47,7 +45,6 @@ async function getWarehouses(){
       'MATCH (a:WAREHOUSE) RETURN a'
   )
   for (let i in result.records){
-    console.log(result.records[i].get(0).properties)
     warehouses.push(result.records[i].get(0).properties)
   }
   return warehouses
@@ -59,7 +56,6 @@ async function getTrips(){
       'MATCH (a:TRIP) RETURN a'
   )
   for (let i in result.records){
-    console.log(result.records[i].get(0).properties)
     trips.push(result.records[i].get(0).properties)
   }
   return trips
@@ -71,7 +67,6 @@ async function getUnloadingAreas(){
       'MATCH (a:UNLOADING_AREA) RETURN a'
   )
   for (let i in result.records){
-    console.log(result.records[i].get(0).properties)
     unloading_areas.push(result.records[i].get(0).properties)
   }
   return unloading_areas
@@ -104,11 +99,12 @@ router.get('/rules', (req, res) => {
   res.render('rules', {title: 'Rules'})
 });
 
-router.get('/dbs', (req, res) => {
-  let users = getClients()
-  let scooters = getScooters()
-  let warehouses = getWarehouses()
-  let unloading_areas = getUnloadingAreas()
+router.get('/dbs', async (req, res) => {
+  let users = await getClients()
+  let scooters = await getScooters()
+  let warehouses = await getWarehouses()
+  let unloading_areas = await getUnloadingAreas()
+  console.log(warehouses, unloading_areas)
   let type = req.cookies.type;
   if (type === 'admin') {
     res.render('dbs', {title: 'Data Bases', users: users, scooters: scooters, warehouses: warehouses, unloading_area: unloading_areas})
@@ -119,13 +115,14 @@ router.get('/dbs', (req, res) => {
   }
 });
 
-router.get('/enterLogin', (req, res) => {
+router.get('/enterLogin', async (req, res) => {
   let user_type = 'no'
   let user_id = ''
-  let logins = getClients()
+  let logins = await getClients()
   //типа запрос к бд
   let login = req.query.login;
   let password = req.query.password;
+  console.log(login, password)
   for (let i in logins){
     if (logins[i].login === login && logins[i].password === password){
       user_type = logins[i].type;
@@ -137,6 +134,7 @@ router.get('/enterLogin', (req, res) => {
 
   res.cookie("type", user_type);
   res.cookie("user id", user_id);
+  console.log(user_type)
   if (user_type === 'admin' || user_type === 'user'){
     res.redirect('/main')
   } else {
@@ -244,8 +242,35 @@ router.get('/exit', (req, res) => {
   res.redirect('/')
 });
 
-router.get('/free-choice', (req, res) => {
+async function attachedToScooters(scooter){
+  let attachedToScooters = []
+  let result = await session.run(
+      'Match(t:SCOOTER{number: $number}) Match p=(n:TECH_CARD)-[:TALKS_ABOUT]-(t) with n, collect(nodes(p)) as listOflistOfnodes unwind listOflistOfnodes as list unwind list as element return collect(distinct element) as distinctNodes;',
+      {number: scooter}
+  )
+
+  attachedToScooters.push(result.records[0].get(0)[0].properties)
+  attachedToScooters.push(result.records[0].get(0)[1].properties)
+  return attachedToScooters
+}
+
+async function attachedToUser(user){
+
+}
+
+router.get('/free-choice', async (req, res) => {
   console.log("query:\n", req.query)
+  if (req.query.scooters)
+    for (let i in req.query.scooters){
+      let scooters = await attachedToScooters(req.query.scooters[i])
+      console.log(scooters)
+    }
+  if (req.query.users)
+    console.log(req.query.users)
+  if (req.query.warehouses)
+    console.log(req.query.warehouses[0].number)
+  if (req.query.unloading_areas)
+    console.log(req.query.unloading_areas[0].number)
   res.redirect('/dbs')
 });
 
