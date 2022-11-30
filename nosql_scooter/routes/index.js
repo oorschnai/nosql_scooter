@@ -116,7 +116,7 @@ router.get('/dbs', async (req, res) => {
 });
 
 router.get('/enterLogin', async (req, res) => {
-  let user_type = 'no'
+  let user_type = ''
   let user_id = ''
   let logins = await getClients()
   //типа запрос к бд
