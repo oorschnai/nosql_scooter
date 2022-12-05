@@ -73,7 +73,7 @@ async function getUnloadingAreas(){
 }
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
+router.get('/', function(req, res) {
   let cookies = req.cookies;
   if (!cookies.type) {
     res.render('login_page', {title: 'Login'});
@@ -92,7 +92,7 @@ router.get('/main', (req, res) => {
 });
 
 router.get('/tariffs', (req, res) => {
-  res.render('tariffs', {title: 'Tarrifs'})
+  res.render('tariffs', {title: 'Tariffs'})
 });
 
 router.get('/rules', (req, res) => {
@@ -118,23 +118,22 @@ router.get('/dbs', async (req, res) => {
 router.get('/enterLogin', async (req, res) => {
   let user_type = ''
   let user_id = ''
-  let logins = await getClients()
-  //типа запрос к бд
   let login = req.query.login;
   let password = req.query.password;
-  console.log(login, password)
-  for (let i in logins){
-    if (logins[i].login === login && logins[i].password === password){
-      user_type = logins[i].type;
-      user_id = logins[i].phone;
-      break;
-    }
+  let result = await session.run(
+      'match (user:USER {login: $login, password: $password})  \n' +
+      'return user',
+      {login: login, password: password}
+  )
+  if (result.records.length > 0)
+  {
+    result = result.records[0].get(0).properties
+    user_type = result.type;
+    user_id = result.phone;
+    res.cookie("type", user_type);
+    res.cookie("user id", user_id);
   }
-  //конец запроса
-
-  res.cookie("type", user_type);
-  res.cookie("user id", user_id);
-  console.log(user_type)
+  //console.log(user_type)
   if (user_type === 'admin' || user_type === 'user'){
     res.redirect('/main')
   } else {
@@ -313,14 +312,14 @@ async function attachedToUnloadingAreas(unloading_area){
       {number: unloading_area}
   )
   for (let i in result.records){
-    let warehouse = result.records[i].get(0).properties.number
+    let unloading_area = result.records[i].get(0).properties.number
 
     let relationship = result.records[i].get(1).type //HAS_NOW/TALKS_ABOUT/USED
 
     let attachedTo = result.records[i].get(2)
 
     let dict = {'unloading_area': unloading_area + '(unloading area)', 'relationship': relationship, 'attachedTo': attachedTo}
-    attachedToWarehouses.push(dict)
+    attachedToUnloadingAreas.push(dict)
   }
 
   return attachedToUnloadingAreas
@@ -389,9 +388,59 @@ router.get('/free-choice', async (req, res) => {
       }
     }
   }
-  let keys = 0
-  keys = ['node1', 'relationship','node2']
+  let keys = ['node1', 'relationship','node2']
   res.render('filter_table', {title: 'Фильтры', keys: keys, data: relationships})
 });
+
+router.get('/add_scooter', async (req, res) =>
+{
+  let warehouses = await getWarehouses();
+  res.render('add_scooter', {warehouses: warehouses})
+})
+
+router.get('/add_edit_scooter', (req, res) =>
+{
+  console.log(req.query)
+  res.redirect('/add_scooter')
+})
+
+router.post('/filter/:title', async (req, res) =>
+{
+  console.log(req.body)
+  let title = req.params.title
+  console.log("title = ", title)
+  switch (title)
+  {
+    case 'Пользователи':
+      let result = await session.run(
+        'match (user:USER) \n' +
+        'WHERE user.name CONTAINS $name and user.password CONTAINS $password and user.login CONTAINS $login and ' +
+        'user.type CONTAINS $type and user.phone CONTAINS $phone\n' +
+        'return user',
+        {name: req.body.name, password: req.body.password, login: req.body.login, type: req.body.type, phone: req.body.phone}
+    );
+      let users = [];
+      for (let i in result.records)
+      {
+        users.push(result.records[i].get(0).properties)
+      }
+      let keys = ['name', 'password', 'login', 'type', 'phone'];
+      res.render('table', {title: title, keys: keys,data: users});
+      break;
+    case 'Самокаты':
+      res.redirect('/scooters');
+      break;
+    case 'Склады':
+      res.redirect('/warehouses');
+      break;
+    case 'Площадки выгрузки':
+      res.redirect('/unloading_area');
+      break;
+    case 'Поездки':
+      res.redirect('/trips');
+      break;
+  }
+
+})
 
 module.exports = router;
